@@ -1,0 +1,13 @@
+recipient_id,recipient_name,region,recipient_type
+101,Alfa Omsorg AB,Stockholm,Company
+102,Beta Service AB,Skane,Company
+103,Gamma Assistans AB,Vastra Gotaland,Company
+104,Delta Kulturforening,Stockholm,Nonprofit
+105,Epsilon Utbildning AB,Skane,Company
+106,Zeta Hjalporganisation,Vastra Gotaland,Nonprofit
+107,Eta Konsult AB,Stockholm,Company
+108,Theta Förening,Skane,Nonprofit
+109,Iota Vard AB,Vastra Gotaland,Company
+110,Kappa Idrottsklubb,Stockholm,Nonprofit
+111,Lambda AB,Norrbotten,Company
+112,My Forening,Norrbotten,Nonprofit

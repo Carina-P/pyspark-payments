@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+.env
+
+# Spark
+.sparkStaging/
+metastore_db/
+spark-warehouse/
+derby.log
+
+# Generated datasets
+data/processed/
+data/output/
+
+# macOS
+.DS_Store
+
+# IDE
+.idea/
+.vscode/
+
+# md
+PySpark_lathud.md

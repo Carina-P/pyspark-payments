@@ -1,0 +1,12 @@
+payment_id,recipient_id,amount,payment_date,status
+1,101,5000.00,2026-01-12,completed
+2,102,15000.00,2026-01-13,completed
+3,103,2500.00,2026-02-01,pending
+4,101,22000.00,2026-02-05,completed
+5,104,750.00,2026-02-10,completed
+6,102,12500.00,2026-03-01,cancelled
+7,105,45000.00,2026-03-03,completed
+8,103,9800.00,2026-03-12,pending
+9,101,30000.00,2026-04-05,completed
+10,104,1800.00,2026-04-10,completed
+11,999,4200.00,2026-04-12,completed
