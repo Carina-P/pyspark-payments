@@ -5,7 +5,7 @@ from src.pipeline.exceptions import DataQualityError
 
 def validate_recipients_lookup(
         recipients_df: DataFrame
-) -> None:
+) -> DataFrame:
 
     normalized_recipient_id_df = recipients_df.withColumn(
         "recipient_id_as_int",
@@ -36,12 +36,12 @@ def validate_recipients_lookup(
         raise DataQualityError(
             f"Duplicate recipient_id: {duplicate['recipient_id_as_int']}"
         )
-    return
+    return normalized_recipient_id_df
 
 
 def validate_payments(
     payments_df: DataFrame,
-    recipients_df: DataFrame
+    recipients_lookup_df: DataFrame
 ) -> tuple[DataFrame, DataFrame]:
     """
     Validate the payments DataFrame by validating columns,
@@ -61,7 +61,7 @@ def validate_payments(
     duplicate_checked_df = validate_duplicates(validated_columns_df)
 
     # Check recipients
-    recipient_checked_df = validate_recipients(duplicate_checked_df, recipients_df)
+    recipient_checked_df = validate_recipients(duplicate_checked_df, recipients_lookup_df)
 
     # Final validation
     validated_payments_df = check_validation(recipient_checked_df)
@@ -143,29 +143,30 @@ def validate_duplicates(payments_df: DataFrame) -> DataFrame:
 
 def validate_recipients(
     payments_df: DataFrame,
-    recipients_df: DataFrame
+    recipients_lookup_df: DataFrame
 ) -> DataFrame:
+    """
+    Check whether each payment recipient exists.
+
+    The recipients_lookup_df must contain validated,
+    unique recipient_id_as_int values.
+    """
     
     payments_df = payments_df.withColumn(
-        "casted_recipient_id",
+        "p_recipient_id_as_int",
         F.expr("try_cast(recipient_id as int)")
     )
-
-    recipients_lookup = recipients_df.withColumn(
-        "casted_lookup_recipient_id",
-        F.expr("try_cast(recipient_id as int)")
-    ).select("casted_lookup_recipient_id").distinct()
 
     return (
         payments_df
         .join(
-            recipients_lookup,
-            F.col("casted_recipient_id") == F.col("casted_lookup_recipient_id"),
+            recipients_lookup_df.select("recipient_id_as_int"),
+            F.col("p_recipient_id_as_int") == F.col("recipient_id_as_int"),
             how="left"
         ).withColumn(
            "existing_recipient",
-           F.col("casted_lookup_recipient_id").isNotNull() 
-        ).drop("casted_recipient_id", "casted_lookup_recipient_id")
+           F.col("recipient_id_as_int").isNotNull() 
+        ).drop("p_recipient_id_as_int", "recipient_id_as_int")
     )
 
 

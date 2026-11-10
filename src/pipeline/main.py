@@ -55,12 +55,12 @@ def run_pipeline(
     payments_df = extract_payments(spark, payments_path)
     recipients_df = extract_recipients(spark, recipients_path)
 
-    validate_recipients_lookup(recipients_df)
+    recipients_lookup_df = validate_recipients_lookup(recipients_df)
 
-    valid_payments_df, invalid_rows_df = validate_payments(payments_df, recipients_df)
+    valid_payments_df, invalid_rows_df = validate_payments(payments_df, recipients_lookup_df)
     load(invalid_rows_df, str(output_path / "invalid_rows"))
 
-    transformed_payments_df, aggregated_by_region_df = transform(valid_payments_df, recipients_df)
+    transformed_payments_df, aggregated_by_region_df = transform(valid_payments_df, recipients_lookup_df)
     load(transformed_payments_df, str(output_path / "payments"), partition_columns=("year", "month"))
     load(aggregated_by_region_df, str(output_path / "aggregated_by_region"))
 

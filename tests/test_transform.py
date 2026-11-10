@@ -27,24 +27,25 @@ def test_tranform_payments(spark):
 
     recipients_df = spark.createDataFrame(
         [
-            ("101","Alfa Omsorg AB","Stockholm","Company"),
-            ("102","Beta Service AB","Skane","Company"),
-            ("103","Gamma Assistans AB","Vastra Gotaland","Company"),  
-            ("104","Delta Kulturforening","Stockholm","Nonprofit"),
-            ("105","Epsilon Utbildning AB","Skane","Company"),
-            ("106","Zeta Hjalporganisation","Vastra Gotaland","Nonprofit"),
+            ("101","Alfa Omsorg AB","Stockholm","Company", 101),
+            ("102","Beta Service AB","Skane","Company", 102),
+            ("103","Gamma Assistans AB","Vastra Gotaland","Company", 103),  
+            ("104","Delta Kulturforening","Stockholm","Nonprofit", 104),
+            ("105","Epsilon Utbildning AB","Skane","Company", 105),
+            ("106","Zeta Hjalporganisation","Vastra Gotaland","Nonprofit", 106),
         ],
         [
             "recipient_id",
             "recipient_name",
             "region",
-            "recipient_type"
+            "recipient_type",
+            "recipient_id_as_int"
         ]
     )
 
     expected_schema = StructType([
-        StructField("recipient_id", IntegerType(), True),
         StructField("payment_id", IntegerType(), True),
+        StructField("recipient_id", IntegerType(), True),
         StructField("amount", DecimalType(12,2), True),
         StructField("payment_date", DateType(), True),
         StructField("status", StringType(), True),
@@ -58,15 +59,15 @@ def test_tranform_payments(spark):
     expected_df = spark.createDataFrame(
         [
             (
-                101, 1, Decimal("500.00"), date(2026, 1, 1), 
+                1, 101, Decimal("500.00"), date(2026, 1, 1), 
                 "completed", "Alfa Omsorg AB", "Stockholm", "Company", 2026, 1
             ),
             (
-                105, 3, Decimal("200.00"), date(2026, 1, 2),
+                3, 105, Decimal("200.00"), date(2026, 1, 2),
                 "completed", "Epsilon Utbildning AB","Skane","Company", 2026, 1
             ),
             (
-                104, 6, Decimal("400.00"), date(2026, 4, 1),
+                6, 104, Decimal("400.00"), date(2026, 4, 1),
                 "completed", "Delta Kulturforening","Stockholm","Nonprofit", 2026, 4
             )
         ],

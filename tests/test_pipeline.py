@@ -51,7 +51,7 @@ def test_pipeline(spark, tmp_path):
 
     payments_file.write_text(
         "payment_id,recipient_id,amount,payment_date,status\n"
-        "1,101,500,2026-01-01,completed\n"
+        "1,0101,500,2026-01-01,completed\n"
         "2,102,-100,2026-01-02,completed\n"
         "3,999,200,2026-02-01,completed\n"
         "4,101,300,2026-03-03,pending\n"
@@ -64,8 +64,8 @@ def test_pipeline(spark, tmp_path):
     )
 
     expected_payments_schema = StructType([
-        StructField("recipient_id", IntegerType(), True),
         StructField("payment_id", IntegerType(), True),
+        StructField("recipient_id", IntegerType(), True),
         StructField("amount", DecimalType(12,2), True),
         StructField("payment_date", DateType(), True),
         StructField("status", StringType(), True),
@@ -79,11 +79,11 @@ def test_pipeline(spark, tmp_path):
     expected_payments_df = spark.createDataFrame(
             [
                 (
-                    101, 1, Decimal("500.00"), date(2026, 1, 1), 
+                    1, 101, Decimal("500.00"), date(2026, 1, 1), 
                     "completed", "Alfa Omsorg AB", "Stockholm", "Company", 2026, 1
                 ),
                 (
-                    101, 4, Decimal("300.00"), date(2026, 3, 3),
+                    4, 101, Decimal("300.00"), date(2026, 3, 3),
                     "pending", "Alfa Omsorg AB", "Stockholm", "Company", 2026, 3
                 )
             ],

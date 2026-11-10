@@ -203,19 +203,19 @@ def test_validate_recipients(spark):
 
     recipient_df = spark.createDataFrame(
         [
-            ("101","Alfa Omsorg AB","Stockholm","Company"),
-            ("102","Beta Service AB","Skane","Company"),
-            ("103","Gamma Assistans AB","Vastra Gotaland","Company"),  
-            ("104","Delta Kulturforening","Stockholm","Nonprofit"),
-            ("105","Epsilon Utbildning AB","Skane","Company"),
-            ("106","Zeta Hjalporganisation","Vastra Gotaland","Nonprofit"),
-            ("101","Alfa Omsorg AB","Stockholm","Company")
+            ("101","Alfa Omsorg AB","Stockholm","Company",101),
+            ("102","Beta Service AB","Skane","Company",102),
+            ("103","Gamma Assistans AB","Vastra Gotaland","Company",103),  
+            ("104","Delta Kulturforening","Stockholm","Nonprofit",104),
+            ("105","Epsilon Utbildning AB","Skane","Company",105),
+            ("106","Zeta Hjalporganisation","Vastra Gotaland","Nonprofit",106)
         ],
         [
             "recipient_id",
             "recipient_name",
             "region",
-            "recipient_type"
+            "recipient_type",
+            "recipient_id_as_int"
         ]
     )
 
@@ -578,18 +578,19 @@ def test_validate_payments(spark):
     
     recipients_df = spark.createDataFrame(
         [
-            ("101","Alfa Omsorg AB","Stockholm","Company"),
-            ("102","Beta Service AB","Skane","Company"),
-            ("103","Gamma Assistans AB","Vastra Gotaland","Company"),  
-            ("104","Delta Kulturforening","Stockholm","Nonprofit"),
-            ("105","Epsilon Utbildning AB","Skane","Company"),
-            ("106","Zeta Hjalporganisation","Vastra Gotaland","Nonprofit"),
+            ("101","Alfa Omsorg AB","Stockholm","Company",101),
+            ("102","Beta Service AB","Skane","Company",102),
+            ("103","Gamma Assistans AB","Vastra Gotaland","Company",103),  
+            ("104","Delta Kulturforening","Stockholm","Nonprofit",104),
+            ("105","Epsilon Utbildning AB","Skane","Company",105),
+            ("106","Zeta Hjalporganisation","Vastra Gotaland","Nonprofit",106),
         ],
         [
             "recipient_id",
             "recipient_name",
             "region",
-            "recipient_type"
+            "recipient_type",
+            "recipient_id_as_int"
         ]
     )
 
