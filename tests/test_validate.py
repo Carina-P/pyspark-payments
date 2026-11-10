@@ -62,6 +62,59 @@ def test_validate_columns(spark):
     assertDataFrameEqual(actual_df, expected_df)
 
 
+@pytest.mark.parametrize(
+    "amount, expected_valid",
+    [
+        ("100.50", True),
+        ("100.500", True),
+        ("100.501", False),          
+        ("0.001", False),       
+        ("0.01", True),           
+        ("0", False),        
+        ("-100", False),          
+        ("abc", False),           
+        (None, False),          
+        ("9999999999.99", True),           
+        ("10000000000.00", False),
+        ("0.0100", True),
+        ("100.000001", False)
+    ]
+)
+def test_validate_amount(spark, amount, expected_valid):
+    
+    input_df = spark.createDataFrame(
+        [
+            ("1", "101", "500", "2026-01-01", "completed"),
+            ("2", "102", amount, "2026-01-02", "completed"),
+        ],
+        [
+            "payment_id",
+            "recipient_id",
+            "amount",
+            "payment_date",
+            "status",
+        ],
+    )
+
+    expected_df = spark.createDataFrame(
+        [
+            ("1", True),
+            ("2", expected_valid)
+        ],
+        [
+            "payment_id",
+            "valid_amount"
+        ],
+    )
+    
+    actual_df = validate_columns(input_df)
+    actual_amount_df = actual_df.select(
+        "payment_id", "valid_amount"
+    )
+
+    assertDataFrameEqual(actual_amount_df, expected_df)    
+
+
 def test_validate_duplicates(spark):
     input_df = spark.createDataFrame(
         [

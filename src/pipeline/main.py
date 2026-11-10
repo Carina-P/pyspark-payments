@@ -45,39 +45,6 @@ def main():
         spark.stop()
 
 
-    # try:
-    #     logger.info("Starting payments pipeline")
-    
-    #     payments_df = extract_payments(spark, "data/raw/payments.csv")
-    #     recipients_df = extract_recipients(spark, "data/raw/recipients.csv")
-
-    #     validate_recipients_lookup(recipients_df)
-
-    #     valid_payments_df, invalid_rows_df = validate_payments(payments_df, recipients_df)
-    #     load(invalid_rows_df, "data/processed/invalid_rows")
-
-    #     transformed_payments_df, aggregated_by_region_df = transform(valid_payments_df, recipients_df)
-    #     load(transformed_payments_df, "data/processed/payments", partition_columns=("year", "month"))
-    #     load(aggregated_by_region_df, "data/processed/aggregated_by_region")
-
-    #     logger.info("Payments pipeline completed")
-    
-    # except DataQualityError as e:
-    #     logger.error("Data quality error: %s", e)
-    #     raise
-
-    # except PipelineWriteError as e:
-    #     logger.error("Pipeline write error: %s", e)
-    #     raise
-
-    # except Exception:
-    #     logger.exception("Unexpected pipeline error")
-    #     raise
-    
-    # finally:
-    #     spark.stop()
-
-
 def run_pipeline(
     spark: SparkSession,
     payments_path: str,

@@ -95,7 +95,8 @@ def validate_columns(
         ).withColumn(
             "valid_amount",
             F.coalesce(
-                F.expr("try_cast(amount as decimal(12,5)) > 0"),
+                F.expr("try_cast(amount as decimal(12,2)) > 0")
+                & F.col("amount").rlike(r"^[0-9]+(\.[0-9]{1,2}0*)?$"),
                 F.lit(False)
             )
         ).withColumn(
