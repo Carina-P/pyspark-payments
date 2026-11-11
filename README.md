@@ -73,7 +73,7 @@ Payments are initially read as strings so that malformed source values can be pr
 |---|---|
 | `payment_id` | Must be a valid integer and unique within the input batch |
 | `recipient_id` | Must be a valid integer and exist in the recipient reference data |
-| `amount` | Must be a positive decimal value |
+| `amount` | Must be positive and exactly representable as Decimal(12,2), without rounding. Trailing zeros are allowed. |
 | `payment_date` | Must be a valid date |
 | `status` | Must be `completed`, `pending`, or `failed` |
 
