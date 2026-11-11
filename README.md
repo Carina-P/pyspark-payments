@@ -14,6 +14,7 @@ The project demonstrates data quality checks, Spark DataFrame transformations, P
 - **Regional aggregates:** Calculates total amount, transaction count, and average amount for completed payments.
 - **Parquet output:** Stores processed payments partitioned by year and month, alongside rejected payments and regional aggregates.
 - **Automated tests:** Uses pytest and PySpark's DataFrame comparison helpers for unit and integration tests.
+- **Continuous integration**: GitHub Actions runs automated tests on pushes and pull requests.
 
 ## Pipeline architecture
 
@@ -145,7 +146,6 @@ Integration tests use pytest's `tmp_path` fixture to isolate input and output fi
 
 ## Future improvements
 
-- GitHub Actions CI to run the test suite on pushes and pull requests
 - Incremental ingestion and upserts
 - Apache Iceberg for transactional table updates
 - Pipeline metrics and more structured logging
