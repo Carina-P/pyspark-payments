@@ -1,3 +1,5 @@
+[![CI](https://github.com/Carina-P/pyspark-payments/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/Carina-P/pyspark-payments/actions/workflows/ci.yml)
+
 # PySpark Payments ETL Pipeline
 
 A modular ETL pipeline built with Python and Apache Spark (PySpark) to validate payment transactions, enrich them with recipient information, and generate regional payment statistics.
