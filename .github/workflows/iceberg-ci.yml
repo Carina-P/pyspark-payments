@@ -1,0 +1,53 @@
+name: Iceberg Integration Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  iceberg-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Start Iceberg environment
+        run: docker compose -f iceberg/docker-compose.yml up -d --build
+
+      - name: Wait for Iceberg REST catalog
+        run: |
+          for i in $(seq 1 30); do
+            if docker exec spark-iceberg python -c '
+          import urllib.request
+          urllib.request.urlopen("http://rest:8181/v1/config", timeout=2)
+          '; then
+              echo "Iceberg REST catalog is ready"
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "Iceberg REST catalog did not become ready"
+          exit 1
+
+      - name: Initialize Iceberg namespace
+        run: |
+          docker exec spark-iceberg python -c '
+          from pyspark.sql import SparkSession
+          spark = SparkSession.builder.appName("Initialize Iceberg").getOrCreate()
+          spark.sql("CREATE NAMESPACE IF NOT EXISTS demo.payments")
+          spark.stop()
+          '
+
+      - name: Run Iceberg integration tests
+        run: |
+          docker exec \
+            -w /home/iceberg/pyspark-payments \
+            spark-iceberg \
+            python -m pytest tests/iceberg/test_iceberg_pipeline.py -v
+
+      - name: Stop Iceberg environment
+        if: always()
+        run: docker compose -f iceberg/docker-compose.yml down
