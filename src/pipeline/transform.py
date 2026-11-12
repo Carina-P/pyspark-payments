@@ -59,3 +59,22 @@ def aggregate_by_region(
     )
 
     return aggregated_df   
+
+
+def get_changed_payments(
+    source_df: DataFrame,
+    target_df: DataFrame,
+) -> DataFrame:
+
+    new_payments_df = source_df.join(target_df, on="payment_id", how="left_anti")
+    updated_payments_df = source_df.join(target_df, on="payment_id", how="inner").filter(
+        ~target_df.recipient_id.eqNullSafe(source_df.recipient_id)
+        | ~target_df.amount.eqNullSafe(source_df.amount)
+        | ~target_df.payment_date.eqNullSafe(source_df.payment_date)
+        | ~target_df.status.eqNullSafe(source_df.status)
+        | ~target_df.recipient_name.eqNullSafe(source_df.recipient_name)
+        | ~target_df.region.eqNullSafe(source_df.region)
+        | ~target_df.recipient_type.eqNullSafe(source_df.recipient_type)              
+    ).select(source_df["*"])
+    
+    return new_payments_df.unionByName(updated_payments_df)

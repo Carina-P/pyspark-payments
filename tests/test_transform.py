@@ -5,7 +5,7 @@ from pyspark.sql.types import (
 from decimal import Decimal
 from datetime import date
 
-from src.pipeline.transform import transform_payments, aggregate_by_region
+from src.pipeline.transform import transform_payments, aggregate_by_region, get_changed_payments
 
 
 def test_tranform_payments(spark):
@@ -136,3 +136,130 @@ def test_aggregate_by_region(spark):
 
     assertDataFrameEqual(actual_df, expected_df)
     assertSchemaEqual(actual_df.schema, expected_schema)
+
+
+def test_get_changed_payments(spark):
+    schema = StructType([
+        StructField("payment_id", IntegerType(), True),
+        StructField("recipient_id", IntegerType(), True),
+        StructField("amount", DecimalType(12,2), True),
+        StructField("payment_date", DateType(), True),
+        StructField("status", StringType(), True),
+        StructField("recipient_name", StringType(), True),
+        StructField("region", StringType(), True),
+        StructField("recipient_type", StringType(), True)
+    ])
+
+    target_df = spark.createDataFrame(
+        [
+            (
+                1, 101, Decimal("500.00"), date(2026, 1, 1),
+                "completed", "Alfa Omsorg AB", "Stockholm", "Company"
+            ),
+            (
+                2, 105, Decimal("300.00"), date(2026, 1, 2),
+                "pending", "Epsilon Utbildning AB","Skane", None
+            ),
+            (
+                3, 104, Decimal("700.00"), date(2026, 4, 1),
+                "completed", "Delta Kulturforening","Stockholm","Nonprofit"
+            )
+        ],
+        schema
+    )
+
+    source_df = spark.createDataFrame(
+        [
+            (
+                1, 101, Decimal("550.00"), date(2026, 1, 1),
+                "completed", "Alfa Omsorg AB", "Stockholm", "Company"
+            ),
+            (
+                2, 105, Decimal("300.00"), date(2026, 1, 2),
+                "pending", "Epsilon Utbildning AB","Skane", None
+            ),
+            (
+                3, 104, Decimal("900.00"), date(2026, 4, 1),
+                "completed", "Delta Kulturforening","Stockholm","Nonprofit"
+            ),
+            (
+                4, 102, Decimal("2500.00"), date(2026, 5, 1),
+                "completed", "Beta Service AB","Skane","Company"
+            )
+        ],
+        schema
+    )
+
+    expected_df = spark.createDataFrame(
+        [
+            (
+                1, 101, Decimal("550.00"), date(2026, 1, 1),
+                "completed", "Alfa Omsorg AB", "Stockholm", "Company"
+            ),
+            (
+                3, 104, Decimal("900.00"), date(2026, 4, 1),
+                "completed", "Delta Kulturforening","Stockholm","Nonprofit"
+            ),
+            (
+                4, 102, Decimal("2500.00"), date(2026, 5, 1),
+                "completed", "Beta Service AB","Skane","Company"
+            )
+        ],
+        schema
+    )
+
+    actual_df = get_changed_payments(source_df, target_df)
+
+    assertDataFrameEqual(actual_df, expected_df)
+
+
+
+def test_get_changed_payments_update_NULL(spark):
+    schema = StructType([
+        StructField("payment_id", IntegerType(), True),
+        StructField("recipient_id", IntegerType(), True),
+        StructField("amount", DecimalType(12,2), True),
+        StructField("payment_date", DateType(), True),
+        StructField("status", StringType(), True),
+        StructField("recipient_name", StringType(), True),
+        StructField("region", StringType(), True),
+        StructField("recipient_type", StringType(), True)
+    ])
+
+    target_df = spark.createDataFrame(
+        [
+                        (
+                1, 101, Decimal("550.00"), date(2026, 1, 1),
+                "completed", "Alfa Omsorg AB", "Stockholm", "Company"
+            ),
+            (
+                2, 105, Decimal("300.00"), date(2026, 1, 2),
+                "pending", "Epsilon Utbildning AB","Skane", None
+            )
+        ],
+        schema
+    )
+
+    source_df = spark.createDataFrame(
+        [
+            (
+                2, 105, Decimal("300.00"), date(2026, 1, 2),
+                "pending", "Epsilon Utbildning AB","Skane", "Nonprofit"
+            )
+        ],
+        schema
+    )
+
+    expected_df = spark.createDataFrame(
+        [
+            (
+                2, 105, Decimal("300.00"), date(2026, 1, 2),
+                "pending", "Epsilon Utbildning AB","Skane", "Nonprofit"
+            )
+        ],
+        schema
+    )
+
+    actual_df = get_changed_payments(source_df, target_df)
+
+    assertDataFrameEqual(actual_df, expected_df)

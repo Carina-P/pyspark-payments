@@ -1,12 +1,13 @@
 from pyspark.sql import SparkSession
 from pathlib import Path
+from pyspark.sql import DataFrame, functions as F
 import logging
 
 from src.pipeline.exceptions import DataQualityError, PipelineWriteError
 from src.pipeline.extract import extract_payments, extract_recipients
 from src.pipeline.validate import validate_payments, validate_recipients_lookup
-from src.pipeline.transform import transform
-from src.pipeline.load import load
+from src.pipeline.transform import transform, get_changed_payments
+from src.pipeline.load import load, merge_payments_into_iceberg
 
 logger = logging.getLogger(__name__)
 
@@ -49,7 +50,9 @@ def run_pipeline(
     spark: SparkSession,
     payments_path: str,
     recipients_path: str,
-    output_path: Path
+    output_path: Path,
+    iceberg_enabled: bool = False,
+    iceberg_table: str = "demo.payments.processed_payments"
 ):
 
     payments_df = extract_payments(spark, payments_path)
@@ -61,7 +64,27 @@ def run_pipeline(
     load(invalid_rows_df, str(output_path / "invalid_rows"))
 
     transformed_payments_df, aggregated_by_region_df = transform(valid_payments_df, recipients_lookup_df)
-    load(transformed_payments_df, str(output_path / "payments"), partition_columns=("year", "month"))
+    if iceberg_enabled:
+        source_df = transformed_payments_df.select(
+            "payment_id", "recipient_id", "amount", "payment_date",
+            "status", "recipient_name", "region", "recipient_type"
+        )
+        target_df = spark.table(iceberg_table)
+
+        changed_payments_df = get_changed_payments(
+            source_df,
+            target_df
+            )
+
+        if not changed_payments_df.isEmpty():
+            merge_payments_into_iceberg(
+                spark,
+                changed_payments_df,
+                iceberg_table
+            )
+    else:
+        load(transformed_payments_df, str(output_path / "payments"), partition_columns=("year", "month"))
+    
     load(aggregated_by_region_df, str(output_path / "aggregated_by_region"))
 
 
